@@ -3006,7 +3006,7 @@ class TaskManager:
     def __init__(self):
         """Initialize the task manager."""
         # Database connection info
-        self.server = "PCZ22056TTSP\SQLEXPRESS"  # Server address (IP address)
+        self.server = "10.195.102.56"  # Server address (IP address)
         self.database = "TaskManagerDB"
         self.user = None  # Will be set by _get_user_credentials
         self.password = None  # Will be set by _get_user_credentials
