@@ -442,49 +442,22 @@ class TaskManagerApp:
         control_frame = ttk.Frame(self.main_frame, style="TFrame")
         control_frame.pack(fill=tk.X, pady=10)
         
-        # Left side buttons
-        left_buttons = ttk.Frame(control_frame, style="TFrame")
-        left_buttons.pack(side=tk.LEFT)
+        # Main button frame
+        button_frame = ttk.Frame(control_frame, style="TFrame")
+        button_frame.pack(side=tk.LEFT)
         
-        # Add task button with icon
+        # Add task button
         add_btn = ttk.Button(
-            left_buttons, 
+            button_frame, 
             text=" Add Task", 
             command=self.add_task,
             style="TButton"
         )
         add_btn.pack(side=tk.LEFT, padx=5)
         
-        # Edit task button with icon
-        edit_btn = ttk.Button(
-            left_buttons, 
-            text=" Edit Task", 
-            command=self.edit_task,
-            style="TButton"
-        )
-        edit_btn.pack(side=tk.LEFT, padx=5)
-        
-        # Complete task button with icon
-        complete_btn = ttk.Button(
-            left_buttons, 
-            text=" Toggle Status", 
-            command=self.complete_task,
-            style="Success.TButton"
-        )
-        complete_btn.pack(side=tk.LEFT, padx=5)
-        
-        # Delete task button with icon
-        delete_btn = ttk.Button(
-            left_buttons, 
-            text=" Delete Task", 
-            command=self.delete_task,
-            style="Accent.TButton"
-        )
-        delete_btn.pack(side=tk.LEFT, padx=5)
-        
-        # Add Undo button
+        # Undo button
         self.undo_btn = ttk.Button(
-            left_buttons,
+            button_frame,
             text=" Undo",
             command=self.undo_delete,
             state=tk.DISABLED,  # Initially disabled
@@ -492,18 +465,47 @@ class TaskManagerApp:
         )
         self.undo_btn.pack(side=tk.LEFT, padx=5)
         
-        # Right side buttons
-        right_buttons = ttk.Frame(control_frame, style="TFrame")
-        right_buttons.pack(side=tk.RIGHT)
-        
-        # Refresh button with icon
+        # Refresh button
         refresh_btn = ttk.Button(
-            right_buttons, 
+            button_frame, 
             text=" Refresh", 
             command=self.refresh_task_list,
             style="TButton"
         )
-        refresh_btn.pack(side=tk.RIGHT, padx=5)
+        refresh_btn.pack(side=tk.LEFT, padx=5)
+        
+        # Search bar frame
+        search_frame = ttk.Frame(control_frame, style="TFrame")
+        search_frame.pack(side=tk.RIGHT, padx=(20, 0))
+        
+        # Search label
+        search_label = ttk.Label(search_frame, text="Search:", style="TLabel")
+        search_label.pack(side=tk.LEFT, padx=(0, 5))
+        
+        # Search entry
+        self.search_var = tk.StringVar()
+        self.search_entry = ttk.Entry(
+            search_frame, 
+            textvariable=self.search_var, 
+            width=20,
+            font=('Helvetica', 10)
+        )
+        self.search_entry.pack(side=tk.LEFT)
+        
+        # Bind search events
+        self.search_var.trace('w', self.on_search_change)
+        self.search_entry.bind('<Return>', lambda e: self.refresh_task_list())
+        self.search_entry.bind('<Escape>', self.clear_search)
+        
+        # Clear search button - smaller size to match entry height
+        clear_search_btn = ttk.Button(
+            search_frame,
+            text="✕",
+            command=self.clear_search,
+            width=2,  # Reduced width
+            style="TButton"
+        )
+        clear_search_btn.pack(side=tk.LEFT, padx=(2, 0))
     
     def create_status_bar(self):
         """Create the status bar at the bottom of the main window."""
@@ -591,6 +593,11 @@ class TaskManagerApp:
         if filters_active:
             status_text += " | Filters: " + ", ".join(filters_active)
         
+        # Add search information if search is active
+        if hasattr(self, 'search_var') and self.search_var.get().strip():
+            search_term = self.search_var.get().strip()
+            status_text += f" | Search: '{search_term}'"
+        
         self.status_var.set(status_text)
     
     def refresh_task_list(self):
@@ -659,14 +666,7 @@ class TaskManagerApp:
             # Apply search filter if needed
             if search_term:
                 filtered_tasks = [
-                    task for task in filtered_tasks if (
-                        search_term in task["title"].lower() or
-                        search_term in (task.get("description", "")).lower() or
-                        search_term in (task.get("applied_vessel", "")).lower() or
-                        search_term in (task.get("category", "")).lower() or
-                        search_term in (task.get("main_staff", "")).lower() or
-                        search_term in (task.get("assigned_to", "")).lower()
-                    )
+                    task for task in filtered_tasks if self._task_matches_search(task, search_term)
                 ]
 
             # Apply sorting if a sort column is set
@@ -1412,6 +1412,56 @@ class TaskManagerApp:
         self.status_var.set(message)
         # Schedule to reset after 5 seconds
         self.root.after(5000, self.update_status)
+    
+    def on_search_change(self, *args):
+        """Handle search text changes with debouncing."""
+        # Cancel any existing search timer
+        if hasattr(self, 'search_timer'):
+            self.root.after_cancel(self.search_timer)
+        
+        # Set a new timer to refresh after 300ms of no typing
+        self.search_timer = self.root.after(300, self.refresh_task_list)
+    
+    def clear_search(self):
+        """Clear the search field and refresh the task list."""
+        self.search_var.set("")
+        self.refresh_task_list()
+    
+    def _task_matches_search(self, task, search_term):
+        """Check if a task matches the search term across all relevant fields."""
+        search_term = search_term.lower().strip()
+        
+        # Fields to search in (convert to lowercase for case-insensitive search)
+        searchable_fields = [
+            task.get("title", ""),
+            task.get("description", ""),
+            task.get("applied_vessel", ""),
+            task.get("category", ""),
+            task.get("main_staff", ""),
+            task.get("assigned_to", ""),
+            task.get("rev", ""),
+            task.get("drawing_no", ""),
+            task.get("request_no", ""),
+            task.get("link", ""),
+            task.get("sdb_link", ""),
+            str(task.get("id", "")),  # Convert ID to string for searching
+            str(task.get("qtd_mhr", "")),  # Convert to string for searching
+            str(task.get("actual_mhr", "")),  # Convert to string for searching
+        ]
+        
+        # Check if search term matches any field
+        for field in searchable_fields:
+            if field and search_term in str(field).lower():
+                return True
+        
+        # Also check date fields if they exist
+        date_fields = ["due_date", "requested_date", "date_started"]
+        for date_field in date_fields:
+            date_value = task.get(date_field)
+            if date_value and search_term in str(date_value).lower():
+                return True
+        
+        return False
     
     def update_cursor(self, event):
         """Update cursor based on whether it's over a link."""
@@ -3006,7 +3056,7 @@ class TaskManager:
     def __init__(self):
         """Initialize the task manager."""
         # Database connection info
-        self.server = "10.195.102.56"  # Server address (IP address)
+        self.server = "10.195.103.198"  # Server address (IP address)
         self.database = "TaskManagerDB"
         self.user = None  # Will be set by _get_user_credentials
         self.password = None  # Will be set by _get_user_credentials
