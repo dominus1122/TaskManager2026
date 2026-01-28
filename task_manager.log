@@ -1,0 +1,45 @@
+2026-01-27 14:01:32,773 - INFO - [MainThread] - --- Log Start ---
+2026-01-27 14:01:32,773 - INFO - [MainThread] - Log file path determined: e:\Work\TRAINING\Programming\Python\2026\1-14-2026\SmartDB Webscraper\task_manager.log
+2026-01-27 14:01:32,773 - INFO - [MainThread] - --- Initial logging setup complete. This message should appear in the log. ---
+2026-01-27 14:01:32,773 - INFO - [MainThread] - Application starting in main()...
+2026-01-27 14:01:32,773 - INFO - [MainThread] - Checking for updates... Current version: 0.23.0
+2026-01-27 14:01:32,773 - INFO - [MainThread] - Update server: \\10.195.103.198\shared\TaskManager\updates
+2026-01-27 14:01:32,779 - INFO - [MainThread] - Latest version: 0.23.0
+2026-01-27 14:01:32,779 - INFO - [MainThread] - Version comparison: Current (0, 23, 0) vs Latest (0, 23, 0)
+2026-01-27 14:01:32,779 - INFO - [MainThread] - Already running the latest version
+2026-01-27 14:01:32,910 - INFO - [MainThread] - Application user 'a0011071' will use shared database user: cdx_clam
+2026-01-27 14:01:32,911 - INFO - [MainThread] - Using configured shared database password.
+2026-01-27 14:01:32,911 - INFO - [MainThread] - Database connection attempt 1/3...
+2026-01-27 14:01:32,911 - INFO - [MainThread] - Connecting to server: 10.195.96.58:1433, database: TaskManager1, user: cdx_clam
+2026-01-27 14:01:33,054 - INFO - [MainThread] - Successfully connected to SQL Server (autocommit=True) on attempt 1
+2026-01-27 14:01:33,061 - INFO - [MainThread] - Total non-deleted tasks in database: 2357
+2026-01-27 14:01:33,061 - INFO - [MainThread] - Loading all tasks (including deleted)...
+2026-01-27 14:01:33,174 - INFO - [MainThread] - Loaded 2360 tasks from the database.
+2026-01-27 14:01:33,184 - INFO - [MainThread] - UserSessions table found and ready.
+2026-01-27 14:01:33,188 - WARNING - [MainThread] - Could not register user session: (515, b"Cannot insert the value NULL into column 'session_id', table 'TaskManager1.dbo.UserSessions'; column does not allow nulls. INSERT fails.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n")
+2026-01-27 14:01:33,190 - INFO - [MainThread] - UserSessions table found and ready.
+2026-01-27 14:01:33,192 - WARNING - [MainThread] - Could not register user session: (515, b"Cannot insert the value NULL into column 'session_id', table 'TaskManager1.dbo.UserSessions'; column does not allow nulls. INSERT fails.DB-Lib error message 20018, severity 16:\nGeneral SQL Server error: Check messages from the SQL Server\n")
+2026-01-27 14:01:33,192 - INFO - [MainThread] - Enhanced features initialized successfully
+2026-01-27 14:01:35,323 - INFO - [MainThread] - Opening Task Manager from main menu...
+2026-01-27 14:01:35,372 - INFO - [MainThread] - Current user: a0011071
+2026-01-27 14:01:37,936 - INFO - [Thread-1 (_perform_task_refresh_threaded)] - Reloading all tasks from database...
+2026-01-27 14:01:37,942 - INFO - [Thread-1 (_perform_task_refresh_threaded)] - Total non-deleted tasks in database: 2357
+2026-01-27 14:01:37,942 - INFO - [Thread-1 (_perform_task_refresh_threaded)] - Loading all tasks (including deleted)...
+2026-01-27 14:01:38,085 - INFO - [Thread-1 (_perform_task_refresh_threaded)] - Loaded 2360 tasks from the database.
+2026-01-27 14:01:38,087 - INFO - [Thread-1 (_perform_task_refresh_threaded)] - Task reload complete. 2360 tasks loaded.
+2026-01-27 14:01:38,912 - INFO - [MainThread] - Scheduler database save functionality enabled
+2026-01-27 14:01:38,915 - INFO - [MainThread] - Loaded schedule from file: e:\Work\TRAINING\Programming\Python\2026\1-14-2026\SmartDB Webscraper\saved_schedule.json
+2026-01-27 14:01:54,030 - INFO - [MainThread] - Scheduler database save functionality enabled
+2026-01-27 14:01:54,032 - INFO - [MainThread] - Loaded schedule from file: e:\Work\TRAINING\Programming\Python\2026\1-14-2026\SmartDB Webscraper\saved_schedule.json
+2026-01-27 14:01:55,969 - INFO - [MainThread] - Starting auto-distribute tasks...
+2026-01-27 14:01:56,945 - INFO - [MainThread] - Found 9 pending tasks
+2026-01-27 14:01:56,945 - INFO - [MainThread] - Users: ['Jay', 'Jude', 'Jorgen', 'Earl', 'Philip', 'Sam', 'Glenn']
+2026-01-27 14:01:56,946 - INFO - [MainThread] - Found 9 tasks total (0 without dates, using 7-day default)
+2026-01-27 14:01:56,946 - INFO - [MainThread] - Distributed 9 task assignments
+2026-01-27 14:02:01,289 - INFO - [MainThread] - Saved schedule: 12 task entries, 0 holidays
+2026-01-27 14:02:03,790 - INFO - [MainThread] - Scheduler database save functionality enabled
+2026-01-27 14:02:03,791 - INFO - [MainThread] - Loaded schedule from file: e:\Work\TRAINING\Programming\Python\2026\1-14-2026\SmartDB Webscraper\saved_schedule.json
+2026-01-27 14:02:06,897 - INFO - [MainThread] - Application closing...
+2026-01-27 14:02:06,898 - INFO - [MainThread] - Application shutdown sequence started.
+2026-01-27 14:02:06,898 - INFO - [MainThread] - Database connection closed properly
+2026-01-27 14:02:06,899 - INFO - [MainThread] - Flushing log handlers before exit...

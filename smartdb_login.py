@@ -13,14 +13,16 @@ import atexit
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.service import Service as EdgeService
-from selenium.webdriver.edge.options import Options as EdgeOptions
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from webdriver_manager.microsoft import EdgeChromiumDriverManager # Handles driver download/management
+# OPTIMIZED: Selenium imports moved to lazy loading (inside login_to_smartdb function)
+# This dramatically improves startup time when the module is imported
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.edge.service import Service as EdgeService
+# from selenium.webdriver.edge.options import Options as EdgeOptions
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium.common.exceptions import TimeoutException, NoSuchElementException
+# from webdriver_manager.microsoft import EdgeChromiumDriverManager # Handles driver download/management
 
 # --- Configuration ---
 # !!! IMPORTANT: Replace with your actual email and the correct starting URL !!!
@@ -210,7 +212,7 @@ def get_email_address(default_email: str | None = None) -> str | None:
     return email_to_use
 
 # --- Helper Function for Data Extraction (within iframe) ---
-def extract_item_value(wait: WebDriverWait, itemkey: str) -> str:
+def extract_item_value(wait, itemkey: str) -> str:
     """
     Attempts to extract the text value associated with an itemkey/name
     using common patterns found in the SmartDB HTML structure.
@@ -224,6 +226,12 @@ def extract_item_value(wait: WebDriverWait, itemkey: str) -> str:
     Returns:
         The extracted text value, or 'Not Found' if unsuccessful.
     """
+    # Lazy import: Only import when function is called
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import TimeoutException
+    
     value = "Not Found" # Default value
     driver = wait._driver # Get the underlying driver instance
 
@@ -302,7 +310,7 @@ def extract_item_value(wait: WebDriverWait, itemkey: str) -> str:
 
 # --- Main Login Logic ---
 
-def login_to_smartdb(start_url: str, email: str, sso_password: str, target_download_folder: str | None = None) -> tuple[bool, dict, webdriver.Edge | None, str | None]:
+def login_to_smartdb(start_url: str, email: str, sso_password: str, target_download_folder: str | None = None) -> tuple[bool, dict, object | None, str | None]:
     """
     Automates login, extracts text data, and optionally downloads attachments
     directly to a specified folder.
@@ -320,6 +328,16 @@ def login_to_smartdb(start_url: str, email: str, sso_password: str, target_downl
                   WebDriver instance (if successful, for closing) or None if failed,
                   str path to the temporary user data directory used, or None if failed)
     """
+    # Lazy import: Only load heavy Selenium libraries when actually needed
+    from selenium import webdriver
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.edge.service import Service as EdgeService
+    from selenium.webdriver.edge.options import Options as EdgeOptions
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import TimeoutException, NoSuchElementException
+    from webdriver_manager.microsoft import EdgeChromiumDriverManager
+    
     driver = None # Initialize driver to None for finally block
     login_successful = False
     extracted_data = {} # Dictionary to store results

@@ -1,0 +1,7 @@
+{
+  "version": "0.23.0",
+  "download_url": "TaskManager.exe",
+  "release_notes": "Version 0.23.0:\n- CRITICAL FIX: Auto-update now works correctly with Nuitka onefile builds\n- Fixed executable path detection for proper update installation\n- Added diagnostic logging for update process\n- Previous versions: Main Menu spacing, Online/Offline status tracking, UI improvements",
+  "release_date": "2026-01-20",
+  "minimum_version": "0.17.0"
+}
