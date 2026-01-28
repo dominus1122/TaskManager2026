@@ -600,8 +600,12 @@ class TaskManagerApp:
         
         self.status_var.set(status_text)
     
-    def refresh_task_list(self):
-        """Refresh the task list in the treeview."""
+    def refresh_task_list(self, reload_from_db=True):
+        """Refresh the task list in the treeview.
+
+        Args:
+            reload_from_db: Whether to reload tasks from the database before rendering.
+        """
         # Check if refresh is already in progress
         with self.refresh_lock:
             if self.refresh_in_progress:
@@ -613,12 +617,12 @@ class TaskManagerApp:
         self.show_loading_indicator()
 
         # Use threading to perform task refresh in the background
-        threading.Thread(target=self._perform_task_refresh_threaded, daemon=True).start()
+        threading.Thread(target=self._perform_task_refresh_threaded, args=(reload_from_db,), daemon=True).start()
 
-    def _perform_task_refresh_threaded(self):
+    def _perform_task_refresh_threaded(self, reload_from_db=True):
         """Threaded method to perform task refresh."""
         try:
-            self._perform_task_refresh() # Call the original refresh method
+            self._perform_task_refresh(reload_from_db) # Call the original refresh method
         except Exception as e:
             logging.error("Error during task refresh in thread", exc_info=True)
             # Handle errors that occur during task refresh in the background thread
@@ -630,19 +634,21 @@ class TaskManagerApp:
             self.root.after(0, self.hide_loading_indicator) # Use root.after to run in main thread
             self.root.after(0, self.update_status) # Update status bar in main thread
 
-    def _perform_task_refresh(self):
+    def _perform_task_refresh(self, reload_from_db=True):
         """Perform the actual task refresh after UI has updated."""
         try:
             # First, explicitly reload all tasks from database to get the latest changes
-            try:
-                self.task_manager.reload_tasks() # Force reload tasks from database
-            except Exception as e:
-                logging.error(f"Error reloading tasks: {str(e)}", exc_info=True)
-                raise Exception(f"Database error: {str(e)}")
+            if reload_from_db:
+                try:
+                    self.task_manager.reload_tasks() # Force reload tasks from database
+                except Exception as e:
+                    logging.error(f"Error reloading tasks: {str(e)}", exc_info=True)
+                    raise Exception(f"Database error: {str(e)}")
 
             # Clear existing items in the treeview
-            for item in self.task_tree.get_children():
-                self.task_tree.delete(item)
+            children = self.task_tree.get_children()
+            if children:
+                self.task_tree.delete(*children)
 
             # Get filtered tasks
             show_completed = self.show_completed_var.get()
@@ -1560,7 +1566,7 @@ class TaskManagerApp:
         self.task_tree.heading(column, text=heading_text + indicator)
         
         # Refresh the task list to apply the sorting
-        self.refresh_task_list()
+        self.refresh_task_list(reload_from_db=False)
     
     def apply_sorting(self, tasks):
         """
